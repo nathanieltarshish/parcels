@@ -1,4 +1,6 @@
 from parcels import Grid
+from argparse import ArgumentParser
+import pytest
 import numpy as np
 
 
@@ -27,7 +29,8 @@ def simple_grid(xdim=200, ydim=350, ndays=25, startday=0):
                           depth, time, field_data={'P': P})
 
 
-def multi_filename():
+@pytest.mark.parametrize('mode', ['scipy', 'jit'])
+def multi_filename(mode):
 
     numfiles = 6
     for t in range(numfiles):
@@ -41,10 +44,14 @@ def multi_filename():
                   'time': 'time_counter'}
 
     grid.from_netcdf(filenames, variables, dimensions)
-    print 'Grid.time as returned by .from_netcdf', grid.time
+    print('Grid.time as returned by .from_netcdf %s' % grid.time)
     print ''
     assert(grid.time.size == numfiles)
 
 
 if __name__ == "__main__":
-    multi_filename()
+    p = ArgumentParser(description="""Example of bug in multi-filename parsing""")
+    p.add_argument('mode', choices=('scipy', 'jit'), nargs='?', default='jit',
+                   help='Execution mode for performing RK4 computation')
+    args = p.parse_args()
+    multi_filename(args.mode)
