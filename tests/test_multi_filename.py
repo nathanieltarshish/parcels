@@ -45,7 +45,7 @@ def multi_filename(mode):
 
     grid.from_netcdf(filenames, variables, dimensions)
     print('Grid.time as returned by .from_netcdf %s' % grid.time)
-    print ''
+    print('')
     assert(grid.time.size == numfiles)
 
 
