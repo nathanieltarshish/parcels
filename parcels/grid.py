@@ -78,7 +78,6 @@ class Grid(object):
             fields[var] = Field.from_netcdf(var, dimensions, dsets, **kwargs)
         u = fields.pop('U')
         v = fields.pop('V')
-        print('Grid.time as computed in .from_netcdf %s' % u.time)
         return cls(u, v, u.depth, u.time, fields=fields)
 
     @classmethod
