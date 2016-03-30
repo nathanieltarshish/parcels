@@ -43,7 +43,7 @@ def multi_filename(mode):
     dimensions = {'lat': 'y', 'lon': 'x',
                   'time': 'time_counter'}
 
-    grid.from_netcdf(filenames, variables, dimensions)
+    grid = grid.from_netcdf(filenames, variables, dimensions)
     print('Grid.time as returned by .from_netcdf %s' % grid.time)
     print('')
     assert(grid.time.size == numfiles)
