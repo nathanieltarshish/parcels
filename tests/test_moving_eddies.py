@@ -41,7 +41,7 @@ def moving_eddies_grid(xdim=200, ydim=350):
     h0 = 1  # Max eddy height
     sig = 0.5  # Eddy e-folding decay scale (in degrees)
     g = 10  # Gravitational constant
-    eddyspeed = 0.1  # Translational speed in m/s
+    eddyspeed = 0.2  # Translational speed in m/s
     dX = eddyspeed * 86400 / dx  # Grid cell movement of eddy max each day
     dY = eddyspeed * 86400 / dy  # Grid cell movement of eddy max each day
 
@@ -76,20 +76,20 @@ def moving_eddies_example(grid, npart=2, mode='jit', verbose=False,
     ParticleClass = JITParticle if mode == 'jit' else Particle
 
     pset = grid.ParticleSet(size=npart, pclass=ParticleClass,
-                            start=(3.3, 46.), finish=(3.3, 47.8))
+                            start=(2.8, 46.), finish=(2.8, 48.1))
 
     if verbose:
         print("Initial particle positions:\n%s" % pset)
 
     # Execte for 25 days, with 5min timesteps and hourly output
-    endtime = td(days=25).total_seconds()
+    endtime = td(days=10).total_seconds()
     dt = td(minutes=5).total_seconds()
-    output_interval = td(hours=1).total_seconds()
+    output_interval = td(hours=2).total_seconds()
     print("MovingEddies: Advecting %d particles for %d seconds"
           % (npart, endtime))
     pset.execute(method, endtime=endtime, dt=dt,
                  output_file=pset.ParticleFile(name="EddyParticle"),
-                 output_interval=output_interval, show_movie=False)
+                 output_interval=output_interval, show_movie=grid.P)
 
     if verbose:
         print("Final particle positions:\n%s" % pset)
@@ -161,7 +161,7 @@ Example of particle advection around an idealised peninsula""")
         grid.write(filename)
 
     # Open grid files
-    grid = Grid.from_nemo(filename)
+    grid = Grid.from_nemo(filename, extra_vars={'P': 'P'})
 
     if args.profiling:
         from cProfile import runctx
