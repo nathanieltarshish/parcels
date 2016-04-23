@@ -6,7 +6,7 @@ import netCDF4
 from collections import OrderedDict, Iterable
 import matplotlib.pyplot as plt
 import math
-import datetime
+from datetime import timedelta
 
 __all__ = ['Particle', 'ParticleSet', 'JITParticle',
            'ParticleFile', 'AdvectionRK4', 'AdvectionEE']
@@ -274,6 +274,15 @@ class ParticleSet(object):
                 self.kernel.compile(compiler=GNUCompiler())
                 self.kernel.load_lib()
 
+        if isinstance(starttime, timedelta):
+            starttime = starttime.total_seconds()
+        if isinstance(endtime, timedelta):
+            endtime = endtime.total_seconds()
+        if isinstance(dt, timedelta):
+            dt = dt.total_seconds()
+        if isinstance(output_interval, timedelta):
+            output_interval = output_interval.total_seconds()
+
         # Check if starttime, endtime and dt are consistent and compute timesteps
         if starttime is None:
             if dt > 0:
@@ -332,7 +341,7 @@ class ParticleSet(object):
             namestr = ' on ' + field.name
         plt.xlabel('Longitude')
         plt.ylabel('Latitude')
-        plt.title('Particles' + namestr + ' after ' + str(datetime.timedelta(seconds=t)) + ' hours')
+        plt.title('Particles' + namestr + ' after ' + str(timedelta(seconds=t)) + ' hours')
         plt.show()
         plt.pause(0.0001)
 
