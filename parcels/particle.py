@@ -328,7 +328,7 @@ class ParticleSet(object):
         else:
             if not isinstance(field, Field):
                 field = getattr(self.grid, field)
-            field.show(**kwargs)
+            field.show(animation=True, **kwargs)
             namestr = ' on ' + field.name
         plt.xlabel('Longitude')
         plt.ylabel('Latitude')
