@@ -81,13 +81,20 @@ def moving_eddies_example(grid, npart=2, mode='jit', verbose=False,
     if verbose:
         print("Initial particle positions:\n%s" % pset)
 
+    def FollowWest(particle, grid, time, dt):
+        u = grid.U[time, particle.lon, particle.lat]
+        v = grid.V[time, particle.lon, particle.lat]
+        if math.fabs(u) < 1.e-3 and math.fabs(v) < 1.e-3:
+            particle.lon -= 0.001
+    k_west = pset.Kernel(FollowWest)
+
     # Execte for 25 days, with 5min timesteps and hourly output
     endtime = td(days=10).total_seconds()
     dt = td(minutes=5).total_seconds()
     output_interval = td(hours=2).total_seconds()
     print("MovingEddies: Advecting %d particles for %d seconds"
           % (npart, endtime))
-    pset.execute(method, endtime=endtime, dt=dt,
+    pset.execute(method + k_west, endtime=endtime, dt=dt,
                  output_file=pset.ParticleFile(name="EddyParticle"),
                  output_interval=output_interval, show_movie=grid.P)
 
