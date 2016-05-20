@@ -360,4 +360,8 @@ class FileBuffer(object):
             calendar = self.dataset[self.dimensions['time']].calendar
             return num2date(0, time_units, calendar)
         except:
-            return 0
+            try:
+                time_units = self.dataset[self.dimensions['time']].Unit
+                return  num2date(0, time_units)
+            except:
+                return 0
