@@ -60,11 +60,11 @@ def stommel_grid(xdim=200, ydim=200):
     return Grid.from_data(U, lon, lat, V, lon, lat, depth, time, field_data={'P': P}, mesh='flat')
 
 
-def stommel_example(npart=1, mode='jit', verbose=False,
-                    method=AdvectionRK4):
-    """Configuration of a particle set that follows two moving eddies
+def UpdateP(particle, grid, time, dt):
+    particle.p = grid.P[time, particle.lon, particle.lat]
 
-    :arg npart: Number of particles to intialise"""
+
+def stommel_example(npart=1, mode='jit', verbose=False, method=AdvectionRK4):
 
     grid = stommel_grid()
     filename = 'stommel'
@@ -72,18 +72,35 @@ def stommel_example(npart=1, mode='jit', verbose=False,
 
     # Determine particle class according to mode
     ParticleClass = JITParticle if mode == 'jit' else Particle
-    pset = grid.ParticleSet(size=npart, pclass=ParticleClass,
-                            start=(100, 5000), finish=(100, 5000))
+
+    class MyParticle(ParticleClass):
+        user_vars = {'p': np.float32, 'p_start': np.float32}
+
+        def __init__(self, *args, **kwargs):
+            """Custom initialisation function which calls the base
+            initialisation and adds the instance variable p"""
+            super(MyParticle, self).__init__(*args, **kwargs)
+            self.p = 0.
+            self.p_start = 0.
+
+        def __repr__(self):
+            """Custom print function which overrides the built-in"""
+            return "P(%.4f, %.4f)[p=%.5f, p_start=%f]" % (self.lon, self.lat,
+                                                          self.p, self.p_start)
+    pset = grid.ParticleSet(size=npart, pclass=MyParticle,
+                            start=(100, 5000), finish=(200, 5000))
+    for particle in pset:
+        particle.p_start = grid.P[0., particle.lon, particle.lat]
 
     if verbose:
         print("Initial particle positions:\n%s" % pset)
 
-    # Execute for 30 days, with 5min timesteps and hourly output
+    # Execute for 50 days, with 5min timesteps and hourly output
     endtime = delta(days=50)
     dt = delta(minutes=5)
     interval = delta(hours=12)
     print("Stommel: Advecting %d particles for %s" % (npart, endtime))
-    pset.execute(method, endtime=endtime, dt=dt, interval=interval,
+    pset.execute(method + pset.Kernel(UpdateP), endtime=endtime, dt=dt, interval=interval,
                  output_file=pset.ParticleFile(name="StommelParticle"), show_movie=True)
 
     if verbose:
@@ -94,11 +111,14 @@ def stommel_example(npart=1, mode='jit', verbose=False,
 
 @pytest.mark.parametrize('mode', ['scipy', 'jit'])
 def test_stommel_grid(mode):
-    grid = stommel_grid()
-    pset = stommel_example(grid, 3, mode=mode)
-    assert(3. < pset[0].lon < 3.5 and 4.75 < pset[0].lat < 5.25)
-    assert(7.4 < pset[1].lon < 8. and 40. < pset[1].lat < 40.6)
-    assert(4. < pset[2].lon < 4.3 and 26.7 < pset[2].lat < 27.)
+    m = method['RK45']
+    pset = stommel_example(3, mode=mode, method=m)
+    print pset
+    err_adv = np.array([abs(p.p_start - p.p) for p in pset])
+    assert(err_adv <= 1.e-1).all()
+    # Test grid sampling accuracy by comparing kernel against grid sampling
+    err_smpl = np.array([abs(p.p - pset.grid.P[0., p.lon, p.lat]) for p in pset])
+    assert(err_smpl <= 1.e-1).all()
 
 
 if __name__ == "__main__":
