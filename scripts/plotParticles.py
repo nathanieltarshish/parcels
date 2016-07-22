@@ -6,7 +6,7 @@ from argparse import ArgumentParser
 import matplotlib.animation as animation
 
 
-def particleplotting(filename, tracerfile='none', tracerlon='x', tracerlat='y', 
+def particleplotting(filename, tracerfile='none', tracerlon='x', tracerlat='y',
                      tracerfield='P', recordedvar='none', mode='2d'):
     """Quick and simple plotting of PARCELS trajectories"""
 
@@ -37,7 +37,7 @@ def particleplotting(filename, tracerfile='none', tracerlon='x', tracerlat='y',
         plt.plot(np.transpose(lon), np.transpose(lat), '.-')
         plt.xlabel('Longitude')
         plt.ylabel('Latitude')
-    elif mode == 'movie2d':
+    elif mode == 'movie2d' or 'notebook':
 
         fig = plt.figure(1)
         ax = plt.axes(xlim=(np.amin(lon), np.amax(lon)), ylim=(np.amin(lat), np.amax(lat)))
@@ -52,11 +52,15 @@ def particleplotting(filename, tracerfile='none', tracerlon='x', tracerlat='y',
         anim = animation.FuncAnimation(fig, animate, frames=np.arange(1, lon.shape[1]),
                                        interval=100, blit=False)
 
-    plt.show()
+    if mode != 'notebook':
+        plt.show()
+    if mode == 'notebook':
+        return anim
+
 
 if __name__ == "__main__":
     p = ArgumentParser(description="""Quick and simple plotting of PARCELS trajectories""")
-    p.add_argument('mode', choices=('2d', '3d', 'movie2d'), nargs='?', default='2d',
+    p.add_argument('mode', choices=('2d', '3d', 'movie2d', 'notebook'), nargs='?', default='movie2d',
                    help='Type of display')
     p.add_argument('-p', '--particlefile', type=str, default='MyParticle.nc',
                    help='Name of particle file')
