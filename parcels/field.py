@@ -296,9 +296,9 @@ class Field(object):
             raise RuntimeError("Visualisation not possible: matplotlib not found!")
 
         t = kwargs.get('t', 0)
-        with_particles = kwargs.get('wparticles', False)
+        with_particles = kwargs.get('with_particles', False)
         make_animation = kwargs.get('animation', False)
-        if with_particles or not make_animation:
+        if with_particles or (not make_animation):
             idx = self.time_index(t)
             if self.time.size > 1:
                 data = np.squeeze(self.interpolator1D(idx, t, None, None))
@@ -313,7 +313,7 @@ class Field(object):
             cs.cmap.set_under('w')
             cs.set_clim(vmin, vmax)
             plt.colorbar(cs)
-            if not make_animation:
+            if not with_particles:
                 plt.show()
         else:
             fig = plt.figure()
@@ -324,7 +324,7 @@ class Field(object):
                 vmin = kwargs.get('vmin', data.min())
                 vmax = kwargs.get('vmax', data.max())
                 cont = ax.contourf(self.lon, self.lat, data,
-                                  levels=np.linspace(vmin, vmax, 256))
+                                   levels=np.linspace(vmin, vmax, 256))
                 return cont
 
             rc('animation', html='html5')
