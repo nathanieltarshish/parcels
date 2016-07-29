@@ -419,9 +419,10 @@ class ParticleSet(object):
             raise RuntimeError("Visualisation not possible: matplotlib not found!")
 
         field = kwargs.get('field', True)
-        t = kwargs.get('t', 0)
         lon = [p.lon for p in self]
         lat = [p.lat for p in self]
+        time = [p.time for p in self]
+        t = int(kwargs.get('t', time[0]))
         plt.ion()
         plt.clf()
         plt.plot(np.transpose(lon), np.transpose(lat), 'ko')
@@ -434,7 +435,7 @@ class ParticleSet(object):
         else:
             if not isinstance(field, Field):
                 field = getattr(self.grid, field)
-            field.show(with_particles=True, **kwargs)
+            field.show(with_particles=True, t=t, **kwargs)
             namestr = ' on ' + field.name
             time_origin = field.time_origin
         if time_origin is 0:
