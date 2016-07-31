@@ -435,7 +435,7 @@ class ParticleSet(object):
         else:
             if not isinstance(field, Field):
                 field = getattr(self.grid, field)
-            field.show(with_particles=True, t=t, **kwargs)
+            field.show(with_particles=True, **dict(kwargs, t=t))
             namestr = ' on ' + field.name
             time_origin = field.time_origin
         if time_origin is 0:
