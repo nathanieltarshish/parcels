@@ -6,8 +6,9 @@ OAFM_simple_U = open_url(url)'''
 
 import urllib2
 import os
+from datetime import date, datetime, timedelta
 
-def import_OAFM_example():
+def import_OFAM_example():
 	url = "http://oceanparcels.org/examples-data/OFAM_example_data"
 	#OAFM_simple_U = urllib2.urlopen(url)
 	#html = OAFM_simple_U.read()
@@ -37,6 +38,30 @@ def import_MovingEddies_example():
 		else:
 			print "%s already exists within %s" % (filename, path)
 
+def import_globcurrent_example():
+	url = "http://oceanparcels.org/examples-data/GlobCurrent_example_data/"
+	filenames = []
+	dt = datetime(2002, 01, 01)
+	end = datetime(2002, 12, 31)
+	step = timedelta(days = 1)
+	while dt < end:
+		filenames.append(dt.strftime("%Y%m%d") + "000000-GLOBCURRENT-L4-CUReul_hs-ALT_SUM-v02.0-fv01.0.nc")
+		dt += step
+	path = "examples/GlobCurrent_example_data"
+	if not os.path.exists(path):
+		os.makedirs(path)
+
+	for filename in filenames:
+		if not os.path.exists(os.path.join(path,filename)):
+			with open(os.path.join(path, filename), 'wb') as temp_file:
+				temp_file.write(path)
+			print "%s written to %s" % (filename, path)
+		else:
+			print "%s already exists within %s" % (filename, path)
+
+
+
 if __name__ == "__main__":
-	import_OAFM_example()
+	import_OFAM_example()
 	import_MovingEddies_example()
+	import_globcurrent_example()
