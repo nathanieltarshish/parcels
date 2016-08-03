@@ -31,7 +31,7 @@ def import_globcurrent_example():
 	url = "http://oceanparcels.org/examples-data/GlobCurrent_example_data"
 	filenames = []
 	dt = datetime(2002, 01, 01)
-	end = datetime(2002, 12, 31)
+	end = datetime(2003, 01, 01)
 	step = timedelta(days = 1)
 	while dt < end:
 		filenames.append(dt.strftime("%Y%m%d") + "000000-GLOBCURRENT-L4-CUReul_hs-ALT_SUM-v02.0-fv01.0.nc")
