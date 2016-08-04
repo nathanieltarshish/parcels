@@ -1,8 +1,9 @@
-from test_moving_eddies import moving_eddies_grid
+#from test_moving_eddies import moving_eddies_grid
 from argparse import ArgumentParser
 from parcels.field import Field
 import numpy as np
 from parcels.particle import Particle, JITParticle, AdvectionRK4
+from parcels.grid import Grid
 
 
 def updateUserVars(particle, grid, time, dt):
@@ -19,7 +20,9 @@ def CreateHabitatGrid(mu=None, xdim=200, ydim=350):
     habitat map containing a single maxima and gaussian gradient
     """
 
-    grid = moving_eddies_grid(xdim, ydim)
+    #grid = moving_eddies_grid(xdim, ydim)
+    filename = 'examples/MovingEddies_data/moving_eddies'
+    grid = Grid.from_nemo(filename, extra_vars={'P': 'P'})
     depth = grid.U.depth
     time = grid.U.time
     lon = grid.U.lon
